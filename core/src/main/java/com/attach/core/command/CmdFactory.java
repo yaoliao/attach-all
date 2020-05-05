@@ -2,6 +2,7 @@ package com.attach.core.command;
 
 import com.alibaba.fastjson.JSON;
 import com.attach.core.command.impl.*;
+import com.attach.core.command.impl.breakpoint.BreakPointCommand;
 import com.attach.core.model.Request;
 
 import java.util.HashMap;
@@ -30,6 +31,7 @@ public class CmdFactory {
         cmdMap.put("redefine", RedefineCommand.class);
         cmdMap.put("mc", MemoryCompilerCommand.class);
         cmdMap.put("jad", JadCommand.class);
+        cmdMap.put("debug", BreakPointCommand.class);
     }
 
     public static CmdFactory getInstance() {

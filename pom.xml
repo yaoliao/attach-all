@@ -12,6 +12,7 @@
         <module>agent</module>
         <module>core</module>
         <module>common</module>
+        <module>demo</module>
     </modules>
 
     <dependencyManagement>
@@ -49,10 +50,24 @@
             </dependency>
 
             <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-util</artifactId>
+                <version>7.0</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.benf</groupId>
                 <artifactId>cfr</artifactId>
                 <version>0.132</version>
             </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.springframework/spring-expression -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-expression</artifactId>
+                <version>5.2.5.RELEASE</version>
+            </dependency>
+
 
         </dependencies>
     </dependencyManagement>

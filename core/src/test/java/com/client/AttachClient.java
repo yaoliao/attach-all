@@ -95,4 +95,7 @@ public class AttachClient {
     // jad
     // {"cmdName":"jad","parameter":{"classPattern":"demo.MathGame"},"requestId":2333}
 
+    // debug
+    // {"cmdName":"debug","parameter":{"className":"demo.MathGame","line":"25","condition":"1=1"},"requestId":2333}
+
 }

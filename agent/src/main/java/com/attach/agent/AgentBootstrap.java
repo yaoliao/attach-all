@@ -33,6 +33,15 @@ public class AgentBootstrap {
     private static final String IS_BIND = "isBind";
 
 
+    // ============= debug 想相关 ===========
+    private static final String DEBUGSTORE = "com.attach.core.debug.DebugStore";
+    private static final String PUT_LOCAL_VARIABLE = "putLocalVariable";
+    private static final String put_Field = "putField";
+    private static final String put_Static_Field = "putStaticField";
+    private static final String fill_Stack_trace = "fillStacktrace";
+    private static final String DEBUG_END = "debugEnd";
+
+
     // 全局持有classloader用于隔离 Arthas 实现
     private static volatile ClassLoader attachClassLoader;
 
@@ -103,7 +112,17 @@ public class AgentBootstrap {
         Method throwInvoke = adviceWeaverClass.getMethod(THROW_INVOKE, int.class, String.class, String.class, String.class, int.class);
         Method reset = AgentBootstrap.class.getMethod(RESET);
         Spy.initForAgentLauncher(classLoader, onBefore, onReturn, onThrows, beforeInvoke, afterInvoke, throwInvoke, reset);
+
+        // 初始化 debug 相关钩子
+        Class<?> debugStoreClass = classLoader.loadClass(DEBUGSTORE);
+        Method putLocalVariable = debugStoreClass.getMethod(PUT_LOCAL_VARIABLE, String.class, Object.class);
+        Method putField = debugStoreClass.getMethod(put_Field, String.class, Object.class);
+        Method putStaticField = debugStoreClass.getMethod(put_Static_Field, String.class, Object.class);
+        Method fillStacktrace = debugStoreClass.getMethod(fill_Stack_trace, Throwable.class);
+        Method debugEnd = debugStoreClass.getMethod(DEBUG_END, int.class);
+        Spy.initDebug(putLocalVariable, putField, putStaticField, fillStacktrace, debugEnd);
     }
+
 
     /**
      * 让下次再次启动时有机会重新加载

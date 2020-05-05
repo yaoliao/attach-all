@@ -72,6 +72,9 @@ public class Enhancer implements ClassFileTransformer {
 
         final ClassLoader arthasClassLoader = Enhancer.class.getClassLoader();
 
+        // TODO 这里重新 init 是防止 targetClassLoader 没有继承 bootstrapClassLoader 从而无法加载到 spy 类。
+        //  arthas 的实现有点问题啊。greys 的实现才是对的
+        //  https://github.com/oldmanpushcart/greys-anatomy/blob/master/core/src/main/java/com/github/ompc/greys/core/advisor/Enhancer.java
         // 初始化间谍, AgentLauncher会把各种hook设置到ArthasClassLoader当中
         // 这里我们需要把这些hook取出来设置到目标classloader当中
         Method initMethod = spyClass.getMethod("init", ClassLoader.class, Method.class,

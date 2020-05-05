@@ -53,8 +53,10 @@ public class AttachCore {
         String pid = null;
         for (Map.Entry<Integer, String> entry : jpsMap.entrySet()) {
             String value = entry.getValue();
-            if ("arthas-demo.jar".equals(value.substring(value.indexOf(" ")).trim())) {
+            if (value.substring(value.indexOf(" ")).trim().contains("arthas-demo.jar")) {
                 pid = String.valueOf(entry.getKey());
+
+
             }
         }
 
@@ -68,7 +70,8 @@ public class AttachCore {
             attach = VirtualMachine.attach(pid);
             attach.loadAgent(agentPath, pid + ";2333;" + corePath);
 
-        } catch (Throwable t) {
+        } catch (
+                Throwable t) {
             t.printStackTrace();
         } finally {
             try {

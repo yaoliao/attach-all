@@ -18,6 +18,14 @@ public class Spy {
     public static volatile Method AFTER_INVOKING_METHOD;
     public static volatile Method THROW_INVOKING_METHOD;
 
+    // debug 相关的钩子
+    public static volatile Method PUT_LOCAL_VARIABLE_METHOD;
+    private static volatile Method PUT_FIELD_METHOD;
+    private static volatile Method PUT_STATIC_FIELD_METHOD;
+    private static volatile Method FILL_STACK_TRACE_METHOD;
+    private static volatile Method DEBUG_END;
+
+
     /**
      * arthas's classloader 引用
      */
@@ -91,6 +99,74 @@ public class Spy {
             }
         }
         AGENT_RESET_METHOD = null;
+    }
+
+    // ================ debug ============
+
+
+    public static void initDebug(Method putLocalVariable,
+                                 Method putField,
+                                 Method putStaticField,
+                                 Method fillStackTeace,
+                                 Method debugEnd) {
+        PUT_LOCAL_VARIABLE_METHOD = putLocalVariable;
+        PUT_FIELD_METHOD = putField;
+        PUT_STATIC_FIELD_METHOD = putStaticField;
+        FILL_STACK_TRACE_METHOD = fillStackTeace;
+        DEBUG_END = debugEnd;
+    }
+
+    public static void putLocalVariable(String key, Object value) {
+        final Void defaultValue = null;
+        try {
+            doInvokeMethod(Spy.PUT_LOCAL_VARIABLE_METHOD, defaultValue, new Object[]{key, value});
+        } catch (Throwable t) {
+            t.printStackTrace(System.err);
+        }
+    }
+
+    public static void putField(String key, Object value) {
+        final Void defaultValue = null;
+        try {
+            doInvokeMethod(Spy.PUT_FIELD_METHOD, defaultValue, new Object[]{key, value});
+        } catch (Throwable t) {
+            t.printStackTrace(System.err);
+        }
+    }
+
+    public static void putStaticField(String key, Object value) {
+        final Void defaultValue = null;
+        try {
+            doInvokeMethod(Spy.PUT_STATIC_FIELD_METHOD, defaultValue, new Object[]{key, value});
+        } catch (Throwable t) {
+            t.printStackTrace(System.err);
+        }
+    }
+
+    public static void fillStacktrace(Throwable e) {
+        final Void defaultValue = null;
+        try {
+            doInvokeMethod(Spy.FILL_STACK_TRACE_METHOD, defaultValue, new Object[]{e});
+        } catch (Throwable t) {
+            t.printStackTrace(System.err);
+        }
+    }
+
+    public static void debugEnd(Integer requestId) {
+        final Void defaultValue = null;
+        try {
+            doInvokeMethod(Spy.DEBUG_END, defaultValue, new Object[]{requestId});
+        } catch (Throwable t) {
+            t.printStackTrace(System.err);
+        }
+    }
+
+    private static Object doInvokeMethod(Method method, Object defaultValue, Object[] args) throws Throwable {
+        if (method == null) {
+            return defaultValue;
+        }
+
+        return method.invoke(null, args);
     }
 
 }
