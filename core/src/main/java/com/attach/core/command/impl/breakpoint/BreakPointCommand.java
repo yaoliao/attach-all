@@ -3,6 +3,7 @@ package com.attach.core.command.impl.breakpoint;
 import com.attach.core.advice.Enhancer;
 import com.attach.core.command.AbstractCommand;
 import com.attach.core.command.LineNumberTransformer;
+import com.attach.core.debug.DebugTimesHolder;
 import com.attach.core.debug.DebugVisitor;
 import com.attach.core.system.Session;
 import com.attach.core.util.SearchUtils;
@@ -25,6 +26,8 @@ public class BreakPointCommand extends AbstractCommand {
 
     private String condition;
 
+    private int times = 3;
+
     @Override
     public void process(Session session) {
 
@@ -34,7 +37,9 @@ public class BreakPointCommand extends AbstractCommand {
         Class<?> clazz = classes.iterator().next();
 
         // 保存 session
+        session.getTimes().set(0);
         DebugVisitor.reg(getRequestId(), session);
+        DebugTimesHolder.reg(getRequestId(), times);
 
         try {
             LineNumberTransformer transformer = new LineNumberTransformer(className, line, condition, getRequestId());
@@ -51,5 +56,8 @@ public class BreakPointCommand extends AbstractCommand {
         this.className = parameter.get("className");
         this.line = Integer.valueOf(parameter.get("line"));
         this.condition = parameter.get("condition");
+        if (parameter.get("times") != null) {
+            this.times = Integer.valueOf(parameter.get("times"));
+        }
     }
 }

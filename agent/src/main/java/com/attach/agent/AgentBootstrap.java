@@ -40,6 +40,7 @@ public class AgentBootstrap {
     private static final String put_Static_Field = "putStaticField";
     private static final String fill_Stack_trace = "fillStacktrace";
     private static final String DEBUG_END = "debugEnd";
+    private static final String CAN_EXECUTR = "canExecute";
 
 
     // 全局持有classloader用于隔离 Arthas 实现
@@ -120,7 +121,8 @@ public class AgentBootstrap {
         Method putStaticField = debugStoreClass.getMethod(put_Static_Field, String.class, Object.class);
         Method fillStacktrace = debugStoreClass.getMethod(fill_Stack_trace, Throwable.class);
         Method debugEnd = debugStoreClass.getMethod(DEBUG_END, int.class);
-        Spy.initDebug(putLocalVariable, putField, putStaticField, fillStacktrace, debugEnd);
+        Method canExecute = debugStoreClass.getMethod(CAN_EXECUTR, int.class);
+        Spy.initDebug(putLocalVariable, putField, putStaticField, fillStacktrace, debugEnd, canExecute);
     }
 
 

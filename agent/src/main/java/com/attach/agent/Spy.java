@@ -24,6 +24,7 @@ public class Spy {
     private static volatile Method PUT_STATIC_FIELD_METHOD;
     private static volatile Method FILL_STACK_TRACE_METHOD;
     private static volatile Method DEBUG_END;
+    private static volatile Method CAN_EXECUTE;
 
 
     /**
@@ -108,12 +109,24 @@ public class Spy {
                                  Method putField,
                                  Method putStaticField,
                                  Method fillStackTeace,
-                                 Method debugEnd) {
+                                 Method debugEnd,
+                                 Method canExecute) {
         PUT_LOCAL_VARIABLE_METHOD = putLocalVariable;
         PUT_FIELD_METHOD = putField;
         PUT_STATIC_FIELD_METHOD = putStaticField;
         FILL_STACK_TRACE_METHOD = fillStackTeace;
         DEBUG_END = debugEnd;
+        CAN_EXECUTE = canExecute;
+    }
+
+    public static boolean canExecute(Integer requestId) {
+        final boolean defaultValue = true;
+        try {
+            return (boolean) doInvokeMethod(Spy.CAN_EXECUTE, defaultValue, new Object[]{requestId});
+        } catch (Throwable t) {
+            t.printStackTrace(System.err);
+            return false;
+        }
     }
 
     public static void putLocalVariable(String key, Object value) {

@@ -36,6 +36,11 @@ public class DebugStore {
 
     private static ThreadLocal<String> stackThreadLocal = new ThreadLocal<String>();
 
+    public static boolean canExecute(int requestId) {
+        boolean result = DebugTimesHolder.checkTimes(requestId);
+        return result;
+    }
+
     public static void putLocalVariable(String name, Object value) {
         localVariables.get().put(name, value);
     }

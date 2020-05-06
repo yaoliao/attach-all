@@ -53,10 +53,10 @@ public class AttachCore {
         String pid = null;
         for (Map.Entry<Integer, String> entry : jpsMap.entrySet()) {
             String value = entry.getValue();
-            if (value.substring(value.indexOf(" ")).trim().contains("arthas-demo.jar")) {
+//            if (value.substring(value.indexOf(" ")).trim().contains("arthas-demo.jar")) {
+            String result = value.substring(value.indexOf(" ")).trim();
+            if (result.contains("demo.jar") || result.contains("MathGame")) {
                 pid = String.valueOf(entry.getKey());
-
-
             }
         }
 

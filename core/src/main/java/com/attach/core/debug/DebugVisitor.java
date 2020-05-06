@@ -20,11 +20,13 @@ public class DebugVisitor extends ClassVisitor implements Opcodes {
     private final static Map<Integer/*requestId*/, Session> SESSIONS
             = new ConcurrentHashMap<Integer, Session>();
 
+
     private static final String SPY_NAME = "com/attach/agent/Spy";
 
     private static final String DEFAULT_DEBUG_ADDKV_DESC = "(Ljava/lang/String;Ljava/lang/Object;)V";
     private static final String THROW_DESC = "(Ljava/lang/Throwable;)V";
     private static final String INTEGER_DESC = "(Ljava/lang/Integer;)V";
+    private static final String CAN_EXEC_DESC = "(Ljava/lang/Integer;)Z";
 
     private final ClassMetadata classMetadata;
     private int line;
@@ -50,12 +52,13 @@ public class DebugVisitor extends ClassVisitor implements Opcodes {
     @Override
     public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
         MethodVisitor methodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions);
+        boolean isStatic = (access & ACC_STATIC) > 0;
         return new DebugMethodVisitor(api, methodVisitor, access, name, descriptor,
-                classMetadata, line, className, requestId);
+                classMetadata, line, className, requestId, isStatic);
     }
 
     public static void reg(Integer request, Session session) {
-        SESSIONS.putIfAbsent(request, session);
+        SESSIONS.put(request, session);
     }
 
     public static Session get(Integer request) {
@@ -76,14 +79,18 @@ public class DebugVisitor extends ClassVisitor implements Opcodes {
 
         private boolean hasChange;
 
+        private boolean isStaticMethod;
+
         protected DebugMethodVisitor(int api, MethodVisitor methodVisitor, int access, String name, String descriptor,
-                                     ClassMetadata classMetadata, int line, String className, Integer requestId) {
+                                     ClassMetadata classMetadata, int line, String className, Integer requestId,
+                                     boolean isStaticMethod) {
             super(api, methodVisitor, access, name, descriptor);
             this.classMetadata = classMetadata;
             this.debugLine = line;
             this.methodId = name + descriptor;
             this.className = className;
             this.requestId = requestId;
+            this.isStaticMethod = isStaticMethod;
         }
 
         @Override
@@ -93,12 +100,25 @@ public class DebugVisitor extends ClassVisitor implements Opcodes {
             if (line == debugLine) {
                 hasChange = true;
 
+                Label label = new Label();
+
+                checkCanDoIt(label);
+
                 // 1、保存 变量
                 captureSnapshot(line);
 
                 // 2、输出
-                printEnd();
+                printEnd(label);
             }
+        }
+
+        private void checkCanDoIt(Label label) {
+            push(requestId);
+            boxingIfShould(Type.getType(int.class).getDescriptor());
+            mv.visitMethodInsn(INVOKESTATIC, SPY_NAME,
+                    "canExecute", CAN_EXEC_DESC, false);
+            visitJumpInsn(IFEQ, label);
+
         }
 
         @Override
@@ -120,6 +140,7 @@ public class DebugVisitor extends ClassVisitor implements Opcodes {
 
 
         private void addFields() {
+            if (isStaticMethod) return;
             List<ClassField> fields = classMetadata.getFields();
             for (ClassField field : fields) {
                 String name = field.getName();
@@ -169,11 +190,12 @@ public class DebugVisitor extends ClassVisitor implements Opcodes {
                     "fillStacktrace", THROW_DESC, false);
         }
 
-        private void printEnd() {
+        private void printEnd(Label label) {
             push(requestId);
             boxingIfShould(Type.getType(int.class).getDescriptor());
             mv.visitMethodInsn(INVOKESTATIC, SPY_NAME,
                     "debugEnd", INTEGER_DESC, false);
+            mv.visitLabel(label);
         }
 
 
